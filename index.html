@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>CRITICAL SYSTEM OVERRIDE</title>
+    <style>
+        body {
+            margin: 0; padding: 0; overflow: hidden;
+            background-color: #000; color: #0F0;
+            font-family: 'Courier New', monospace;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            height: 100vh; text-align: center;
+        }
+        #skull {
+            color: #FF0000; font-size: 8px; white-space: pre;
+            margin-bottom: 20px; text-shadow: 0 0 20px red;
+        }
+        .hidden { display: none !important; }
+        input {
+            background: #000; border: 2px solid #F00;
+            color: #F00; padding: 15px; font-size: 1.5em;
+            width: 200px; text-align: center; margin-top: 20px;
+        }
+        button {
+            background: #F00; color: #000; border: none;
+            padding: 15px 40px; cursor: pointer; font-weight: bold;
+            font-size: 1.1em; margin-top: 15px;
+        }
+        #timer { font-size: 2em; color: yellow; margin: 10px 0; }
+        .blink { animation: blinker 0.2s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <div id="intro">
+        <h1 style="color: #0F0;">ОНОВЛЕННЯ БЕЗПЕКИ GOOGLE</h1>
+        <p>Натисніть для підтвердження особи та перевірки системи</p>
+        <button onclick="lockSystem()">ПІДТВЕРДИТИ</button>
+    </div>
+
+    <div id="payload" class="hidden">
+        <div id="skull">
+             XXXXX      XXXXX
+            X     X    X     X
+           X       XXXX       X
+           X   XXXX    XXXX   X
+           X  X            X  X
+            XX              XX
+            X   X        X   X
+            X      XXXX      X
+             X              X
+              XXXXXXXXXXXXXX
+        </div>
+        <h2 style="color: #FFF;">ПРИСТРІЙ ЗАБЛОКОВАНО: ХАКЕР "Z"</h2>
+        <p>До самознищення даних залишилося:</p>
+        <div id="timer">05:00</div>
+        
+        <div style="border: 1px solid #F00; padding: 15px; margin: 10px;">
+            <p>РОЗВ'ЯЖИ АБО ВТРАТЬ ВСЕ:</p>
+            <p style="font-size: 1.3em;">7=50 | 9=82 | 11=?</p>
+        </div>
+
+        <input type="number" id="answer" placeholder="КОД...">
+        <br>
+        <button onclick="checkAnswer()">ВВЕСТИ КОД</button>
+    </div>
+
+    <audio id="hacker-sound" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const payload = document.getElementById('payload');
+        const intro = document.getElementById('intro');
+        const audio = document.getElementById('hacker-sound');
+        const timerDisplay = document.getElementById('timer');
+        let timeLeft = 300; // 5 хвилин
+
+        function lockSystem() {
+            enterFullscreen();
+            intro.classList.add('hidden');
+            payload.classList.remove('hidden');
+            audio.play();
+            startTimer();
+        }
+
+        function enterFullscreen() {
+            let elem = document.documentElement;
+            if (elem.requestFullscreen) { elem.requestFullscreen(); }
+            else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); }
+        }
+
+        // ПЕРЕХОПЛЕННЯ ВИХОДУ
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement && !payload.classList.contains('hidden')) {
+                // Виводимо alert, який зупиняє все, поки вона не натисне ОК
+                alert("УВАГА! Спроба несанкціонованого виходу! Систему буде перезаблоковано.");
+                enterFullscreen(); // Повертаємо назад
+            }
+        });
+
+        function startTimer() {
+            const countdown = setInterval(() => {
+                timeLeft--;
+                let mins = Math.floor(timeLeft / 60);
+                let secs = timeLeft % 60;
+                timerDisplay.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+                if (timeLeft <= 30) {
+                    timerDisplay.classList.add('blink');
+                    document.body.style.backgroundColor = "#200";
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    document.body.innerHTML = "<h1 style='color:red; font-size:5em;'>DATA DELETED</h1>";
+                }
+            }, 1000);
+        }
+
+        // Функція для примусового повернення в Fullscreen
+function forceFullscreen() {
+    let elem = document.documentElement;
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen().catch(() => {});
+    } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen().catch(() => {});
+    }
+}
+
+// 1. Спроба повернути при зміні режиму
+document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement && !payload.classList.contains('hidden')) {
+        alert("КРИТИЧНА ПОМИЛКА: Спроба обходу системи! Натисніть ОК для відновлення.");
+        forceFullscreen();
+    }
+});
+
+// 2. ГОЛОВНА ХИТРІСТЬ: Повертаємо Fullscreen при БУДЬ-ЯКОМУ кліку на екран
+// Якщо вона спробує клацнути на хрестик або меню, сайт знову стрибне в повний екран
+document.addEventListener('click', () => {
+    if (!document.fullscreenElement && !payload.classList.contains('hidden')) {
+        forceFullscreen();
+    }
+});
+
+// 3. Заборона закриття вкладки (виведе вікно з підтвердженням при спробі закрити)
+window.onbeforeunload = function() {
+    return "Ви впевнені, що хочете перервати процес дешифрування? Це призведе до втрати даних.";
+};
+
+// Функція для агресивного повернення в Fullscreen
+function forceFullscreen() {
+    let elem = document.documentElement;
+    let request = elem.requestFullscreen || elem.webkitRequestFullscreen || elem.mozRequestFullScreen || elem.msRequestFullscreen;
+    if (request) {
+        request.call(elem).catch(() => {
+            console.log("Браузер чекає на клік користувача...");
+        });
+    }
+}
+
+// Перехоплення зміни режиму (Esc, кнопка назад)
+document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement && !payload.classList.contains('hidden')) {
+        alert("УВАГА! Спроба обходу системи. Повернення до дешифрування...");
+        forceFullscreen();
+    }
+});
+
+// Робимо весь екран "пасткою": будь-який тап повертає Fullscreen
+document.addEventListener('click', () => {
+    if (!document.fullscreenElement && !payload.classList.contains('hidden')) {
+        forceFullscreen();
+    }
+});
+
+// Блокування закриття вкладки
+window.onbeforeunload = function() {
+    return "Процес не завершено. Ви впевнені?";
+};
+
+// Фінальна логіка при введенні правильної відповіді (122)
+function checkAnswer() {
+    const val = document.getElementById('answer').value;
+    if (val == "122") {
+        audio.pause();
+        // Вимикаємо пастки перед виходом
+        document.onfullscreenchange = null;
+        window.onbeforeunload = null;
+        
+        if (document.exitFullscreen) { document.exitFullscreen(); }
+
+        // Фінальне повідомлення
+        document.body.innerHTML = `
+            <div style="color: #F00; background: #000; padding: 50px; border: 5px double #F00;">
+                <h1 style="font-size: 3em; text-shadow: 0 0 20px red;">ACCESS GRANTED</h1>
+                <p style="font-size: 1.5em; color: #FFF;">Вітаю, Надю. Ти впоралася з цим рівнем.</p>
+                <hr style="border-color: #F00;">
+                <h2 style="color: red; animation: blinker 0.5s infinite;">ЦЕ БУВ ТІЛЬКИ ПОЧАТОК...</h2>
+                <p style="color: #555;">Система готується до наступної фази. Очікуйте.</p>
+                <button onclick="location.reload()" style="background: #333; color: #F00; border: 1px solid #F00; padding: 10px;">ЗАКРИТИ ТЕРМІНАЛ</button>
+            </div>
+        `;
+    } else {
+        alert("НЕВІРНИЙ КОД! СИСТЕМА В ПРІОРИТЕТНОМУ РЕЖИМІ.");
+    }
+}
+
+        function checkAnswer() {
+            const val = document.getElementById('answer').value;
+            if (val == "122") {
+                audio.pause();
+                // Знімаємо обробник, щоб вона могла вийти
+                document.onfullscreenchange = null; 
+                if (document.exitFullscreen) { document.exitFullscreen(); }
+                document.body.innerHTML = "<h1 style='color:#0F0'>ACCESS GRANTED. <br> Це був лише жарт!</h1><button onclick='location.reload()'>Закрити</button>";
+            } else {
+                alert("НЕВІРНИЙ КОД! ЧАС СТІКАЄ...");
+            }
+        }
+    </script>
+</body>
+</html>
